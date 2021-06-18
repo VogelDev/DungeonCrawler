@@ -43,6 +43,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e73a2aa4da548744a6aec9a8cc842f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  roomType: 0
+  Puzzles:
+  - {fileID: 0}
   WallObj: {fileID: 8305260598593584433, guid: c2480da49c5f08642957d445f8d8efda, type: 3}
   Walls: []
   Pos: {x: 0, y: 0}
+  RoomWidth: 0
+  DistanceFromStart: 0
+  IsGoal: 0
+  LeftWall: 1
+  RightWall: 1
+  UpperWall: 1
+  LowerWall: 1
+  Visited: 0
+  Neighbors: []
+  RoomNumber: 0

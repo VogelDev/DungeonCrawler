@@ -2,18 +2,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameScript : MonoBehaviour
 {
 
-    public GameObject PlayerObj;
+    public Player PlayerObj;
     public Room RoomObj;
-    public GameObject Player;
+    public GameObject Maze;
+    public Stairs stairs;
+    public List<Puzzle> Puzzles;
+
+    public HUD hud;
+    
+    public List<Room> RoomObjs;
+
+    public Player Player;
     public GameObject Goal;
     public GameObject WinningMessage;
 
     public int RoomCount;
     public int RoomWidth;
+
+    private Room currentRoom;
 
     public List<Room> Rooms;
 
@@ -22,37 +33,11 @@ public class GameScript : MonoBehaviour
     {
         Player = Instantiate(PlayerObj);
         Player.transform.position = new Vector3(6, 6, 0);
-        var count = 0;
-        for (var i = 0; i < RoomCount; i++)
-        {
-            for (var j = 0; j < RoomCount; j++)
-            {
-                var obj = Instantiate(RoomObj);
-                obj.RoomNumber = ++count;
-                obj.RoomWidth = RoomWidth;
-                obj.Pos = new Vector2(i, j);
 
-                obj.transform.position = new Vector3(i * RoomWidth, j * RoomWidth, 0);
-                //if (i == 0)
-                //{
-                //    obj.LeftWall = true;
-                //}
-                //if (i == RoomCount - 1)
-                //{
-                //    obj.RightWall = true;
-                //}
-                //if (j == 0)
-                //{
-                //    obj.LowerWall = true;
-                //}
-                //if (j == RoomCount - 1)
-                //{
-                //    obj.UpperWall = true;
-                //}
-                Rooms.Add(obj);
-            }
-        }
-        GenerateMaze();
+        hud.Player = Player;
+        
+        InitRooms();
+        GenerateMaze(Rooms[0]);
     }
 
     // Update is called once per frame
@@ -61,7 +46,7 @@ public class GameScript : MonoBehaviour
         // camera follows the player;
         //gameObject.transform.position = new Vector3(Player.transform.position.x, Player.transform.position.y, -10);
 
-        var currentRoom = Rooms.FirstOrDefault(r =>
+        currentRoom = Rooms.FirstOrDefault(r =>
         {
             return r.transform.position.x <= Player.transform.position.x
                     && Player.transform.position.x <= r.transform.position.x + r.RoomWidth
@@ -73,7 +58,7 @@ public class GameScript : MonoBehaviour
 
         if (currentRoom.IsGoal)
         {
-            WinningMessage.SetActive(true);
+            //WinningMessage.SetActive(true);
         }
     }
 
@@ -82,12 +67,52 @@ public class GameScript : MonoBehaviour
 
     }
 
-    private void GenerateMaze()
+    private void InitRooms()
     {
+        Player.transform.gameObject.name = "Player";
+        var count = 0;
+        for (var i = 0; i < RoomCount; i++)
+        {
+            for (var j = 0; j < RoomCount; j++)
+            {
+                var obj = Instantiate(RoomObj);
+                obj.RoomNumber = ++count;
+                obj.RoomWidth = RoomWidth;
+                obj.Pos = new Vector2(i, j);
+
+                obj.transform.position = new Vector3(i * RoomWidth, j * RoomWidth, 0);
+                obj.transform.parent = Maze.gameObject.transform;
+                Rooms.Add(obj);
+            }
+        }
+
+        hud.Init();
+
+    }
+
+    public void ReGenerateMaze()
+    {
+        var pos = currentRoom.transform.position;
+        var mazePos = currentRoom.Pos;
+        // Debug.Log($"{pos}");
+        Player.transform.position = new Vector3(pos.x + 6, pos.y + 6, 0);
+        foreach (Transform child in Maze.transform)
+        {
+            Destroy(child.gameObject);
+        }
+        Rooms = new List<Room>();
+        InitRooms();
+        currentRoom = GetRoomByIndex((int)mazePos.x, (int)mazePos.y);
+        GenerateMaze(currentRoom);
+    }
+
+    private void GenerateMaze(Room startPosition)
+    {
+        // Debug.Log(startPosition);
         //Random.InitState(42);
-        Debug.Log("Generating Maze");
+        //Debug.Log("Generating Maze");
         var stack = new List<Room>();
-        var current = Rooms[0];
+        var current = GetRoomByIndex((int)startPosition.Pos.x, (int)startPosition.Pos.y);
         while (Rooms.Any(r => !r.Visited))
         {
             current.Visited = true;
@@ -112,21 +137,33 @@ public class GameScript : MonoBehaviour
             }
         }
 
-        TraverseMaze(Rooms[0], 1);
+        foreach (var room in Rooms)
+        {
+            room.SetRoomType(Puzzles);
+        }
+
+        TraverseMaze(startPosition, 1);
         var goal = Rooms.OrderByDescending(item => item.DistanceFromStart).First();
         goal.IsGoal = true;
+        // Debug.Log(goal);
         var obj = Instantiate(Goal);
         obj.transform.position = new Vector3(goal.transform.position.x, goal.transform.position.y, goal.transform.position.z);
+        obj.transform.parent = Maze.transform;
+
+        var stair = Instantiate(stairs);
+        stair.transform.position = new Vector3(goal.transform.position.x + 5, goal.transform.position.y + 5, goal.transform.position.z - 10);
+        stair.transform.parent = Maze.transform;
+        stair.gs = this;
     }
 
     private void TraverseMaze(Room room, int distance)
     {
-        if(room.DistanceFromStart != 0)
+        if (room.DistanceFromStart != 0)
         {
             return;
         }
         room.DistanceFromStart = distance;
-        foreach(var neighbor in room.Neighbors)
+        foreach (var neighbor in room.Neighbors)
         {
             TraverseMaze(neighbor, distance + 1);
         }
@@ -164,7 +201,7 @@ public class GameScript : MonoBehaviour
             neighbors.Add(right);
         }
 
-        if(neighbors.Count == 0)
+        if (neighbors.Count == 0)
         {
             return null;
         }

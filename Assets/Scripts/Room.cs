@@ -1,9 +1,33 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Room : MonoBehaviour
 {
+    public enum RoomTypes
+    {
+        Left,
+        LeftLower,
+        LeftLowerRight,
+        LeftLowerUpper,
+        LeftLowerRightUpper,
+        LeftRight,
+        LeftRightUpper,
+        LeftUpper,
+        Lower,
+        LowerRight,
+        LowerRightUpper,
+        LowerUpper,
+        Right,
+        RightUpper,
+        Upper       
+    }
+
+    public RoomTypes roomType;
+
+    public Puzzle puzzle;
+
     public Wall WallObj;
     public List<Wall> Walls;
     public Vector2 Pos;
@@ -90,5 +114,83 @@ public class Room : MonoBehaviour
     void Update()
     {
 
+    }
+
+    public void SetRoomType(List<Puzzle> puzzles)
+    {
+        if (!LeftWall && !LowerWall && !RightWall && !UpperWall)
+        {
+            roomType = RoomTypes.LeftLowerRightUpper;
+        }
+        else if (!LowerWall && !RightWall && !UpperWall)
+        {
+            roomType = RoomTypes.LowerRightUpper;
+        }
+        else if (!LeftWall && !RightWall && !UpperWall)
+        {
+            roomType = RoomTypes.LeftRightUpper;
+        }
+        else if (!LeftWall && !LowerWall && !UpperWall)
+        {
+            roomType = RoomTypes.LeftLowerUpper;
+        }
+        else if (!LeftWall && !LowerWall && !RightWall)
+        {
+            roomType = RoomTypes.LeftLowerRight;
+        }
+        else if (!RightWall && !UpperWall)
+        {
+            roomType = RoomTypes.RightUpper;
+        }
+        else if (!LowerWall && !UpperWall)
+        {
+            roomType = RoomTypes.LowerUpper;
+        }
+        else if (!LowerWall && !RightWall)
+        {
+            roomType = RoomTypes.LowerRight;
+        }
+        else if (!LeftWall && !UpperWall)
+        {
+            roomType = RoomTypes.LeftUpper;
+        }
+        else if (!LeftWall && !RightWall)
+        {
+            roomType = RoomTypes.LeftRight;
+        }
+        else if (!LeftWall && !LowerWall)
+        {
+            roomType = RoomTypes.LeftLower;
+        }
+        else if (!UpperWall)
+        {
+            roomType = RoomTypes.Upper;
+        }
+        else if (!RightWall)
+        {
+            roomType = RoomTypes.Right;
+        }
+        else if (!LowerWall)
+        {
+            roomType = RoomTypes.Lower;
+        }
+        else if (!LeftWall)
+        {
+            roomType = RoomTypes.Left;
+        }
+
+        var validPuzzles = puzzles.Where(p => p.roomType == this.roomType).ToList();
+        if(validPuzzles.Count > 0)
+        {
+            puzzle = validPuzzles[Random.Range(0, validPuzzles.Count)];
+            puzzle.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            var obj = Instantiate(puzzle);
+            obj.transform.parent = gameObject.transform;
+        }
+    }
+
+    public override string ToString()
+    {
+        return $"Position: {Pos}\r\nRoom Type: {roomType}\r\nIs Goal: {IsGoal}";
     }
 }
