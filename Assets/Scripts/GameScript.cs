@@ -36,6 +36,7 @@ public class GameScript : MonoBehaviour
 
         hud.Player = Player;
         
+        
         InitRooms();
         GenerateMaze(Rooms[0]);
     }

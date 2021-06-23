@@ -46,8 +46,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1cbb5f9c8a214045bf8904137f16d0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
-  rb: {fileID: 836670643}
 --- !u!50 &836670643
 Rigidbody2D:
   serializedVersion: 4
@@ -82,6 +80,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sprite: {fileID: 2317892539862153556}
+  CurrentLevel: 1
+  CurrentXP: 0
+  moveSpeed: 4
+  rb: {fileID: 836670643}
 --- !u!1 &2317892539862153558
 GameObject:
   m_ObjectHideFlags: 0
