@@ -46,7 +46,6 @@ public class MovingBlock : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-
         if(collision.transform.gameObject.name != "Player")
         {
             return;
@@ -59,9 +58,11 @@ public class MovingBlock : MonoBehaviour
         {
             return;
         }
+        
+        Debug.Log(collision.transform.position.x + collision.transform.localScale.x);
 
 
-        if (Pushes.Contains(PushDirections.Left) && collision.transform.position.x + collision.transform.localScale.x - .15 <= transform.position.x)
+        if (Pushes.Contains(PushDirections.Left) && collision.transform.position.x + collision.transform.localScale.x - .6 <= transform.position.x)
         {
             //transform.Translate(new Vector3(1, 0, 0));
             startMarker = transform.position;
@@ -70,7 +71,7 @@ public class MovingBlock : MonoBehaviour
         }
 
 
-        if(Pushes.Contains(PushDirections.Right) && collision.transform.position.x + .15 >= transform.position.x + transform.localScale.x)
+        if(Pushes.Contains(PushDirections.Right) && collision.transform.position.x + .6 >= transform.position.x + transform.localScale.x)
         {
             startMarker = transform.position;
             endMarker = new Vector3(transform.position.x - 1, transform.position.y, transform.position.z);

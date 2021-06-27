@@ -14,6 +14,8 @@ public class HUD : MonoBehaviour
     public Text LevelDisplay;
     public Text XPDisplay;
     public Text XPTNL;
+
+    public Image HPBar;
     
     // Start is called before the first frame update
     void Start()
@@ -28,12 +30,14 @@ public class HUD : MonoBehaviour
         LevelDisplay.text = Player.CurrentLevel.ToString();
         XPDisplay.text = Player.CurrentXP.ToString(CultureInfo.CurrentCulture);
         XPTNL.text = (Player.CurrentLevel * 100).ToString();
+
+        HPBar.fillAmount = (float) Player.CurrentHP / Player.MaxHP;
     }
 
     public void Init()
     {
-        PlayerDisplay.sprite = Player.sprite.sprite;
+        // PlayerDisplay.sprite = Player.sprite.sprite;
 
-        PlayerDisplay.color = Player.sprite.color;
+        // PlayerDisplay.color = Player.sprite.color;
     }
 }
