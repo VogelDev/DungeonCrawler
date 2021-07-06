@@ -17,7 +17,7 @@ public class GameScript : MonoBehaviour
     
     public List<Room> RoomObjs;
 
-    public Player Player;
+    public static Player Player;
     public GameObject Goal;
     public GameObject WinningMessage;
 
@@ -27,15 +27,15 @@ public class GameScript : MonoBehaviour
     private Room currentRoom;
 
     public List<Room> Rooms;
+    private static readonly int Death = Animator.StringToHash("Death");
+
+    private bool _deathAnimation;
 
     // Start is called before the first frame update
     void Start()
     {
-        Player = Instantiate(PlayerObj);
-        Player.transform.position = new Vector3(6, 6, 0);
-
-        hud.Player = Player;
-        
+        InitPlayer();
+        _deathAnimation = false;
         
         InitRooms();
         GenerateMaze(Rooms[0]);
@@ -61,6 +61,19 @@ public class GameScript : MonoBehaviour
         {
             //WinningMessage.SetActive(true);
         }
+
+        // if (Player.CurrentHP <= 0)
+        // {
+        //     StartCoroutine(PlayerDeath());
+        // }
+    }
+
+    private IEnumerator PlayerDeath()
+    {
+        Player.animator.SetTrigger(Death);
+        yield return new WaitForSeconds(5);
+        Destroy(Player.gameObject);
+        InitPlayer();
     }
 
     private void FixedUpdate()
@@ -68,9 +81,18 @@ public class GameScript : MonoBehaviour
 
     }
 
+    private void InitPlayer()
+    {
+        GameScript.Player = Instantiate(PlayerObj);
+        Player.transform.position = new Vector3(6, 6, 0);
+        Player.transform.gameObject.name = "Player";
+
+        hud.Player = Player;
+        
+    }
+
     private void InitRooms()
     {
-        Player.transform.gameObject.name = "Player";
         var count = 0;
         for (var i = 0; i < RoomCount; i++)
         {
@@ -148,14 +170,29 @@ public class GameScript : MonoBehaviour
         goal.IsGoal = true;
         // Debug.Log(goal);
         var obj = Instantiate(Goal);
+        
         obj.transform.position = new Vector3(goal.transform.position.x, goal.transform.position.y, goal.transform.position.z);
         obj.transform.parent = Maze.transform;
 
         var stair = Instantiate(stairs);
+        
         stair.transform.position = new Vector3(goal.transform.position.x + 5, goal.transform.position.y + 5, goal.transform.position.z - 10);
         stair.transform.parent = Maze.transform;
         stair.gs = this;
+        
+        // SetLayerRecursively(Maze.gameObject, LayerMask.NameToLayer("Walls"));
     }
+    
+    void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        obj.layer = newLayer;
+   
+        foreach( Transform child in obj.transform )
+        {
+            SetLayerRecursively( child.gameObject, newLayer );
+        }
+    }
+
 
     private void TraverseMaze(Room room, int distance)
     {

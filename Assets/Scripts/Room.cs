@@ -185,6 +185,8 @@ public class Room : MonoBehaviour
             puzzle = validPuzzles[Random.Range(0, validPuzzles.Count)];
             puzzle.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
             var obj = Instantiate(puzzle);
+            
+            obj.gameObject.layer = LayerMask.NameToLayer("Walls");
             obj.transform.parent = gameObject.transform;
         }
     }
