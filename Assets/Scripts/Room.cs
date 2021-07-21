@@ -7,6 +7,7 @@ public class Room : MonoBehaviour
 {
     public enum RoomTypes
     {
+        Any,
         Left,
         LeftLower,
         LeftLowerRight,
@@ -179,13 +180,15 @@ public class Room : MonoBehaviour
             roomType = RoomTypes.Left;
         }
 
-        var validPuzzles = puzzles.Where(p => p.roomType == this.roomType).ToList();
-        if(validPuzzles.Count > 0)
+        var validPuzzles = puzzles.Where(p => p.roomType == this.roomType || p.roomType == RoomTypes.Any).ToList();
+        var addPuzzle = Random.Range(0.0f, 1f) > 0.5;
+
+        if (addPuzzle && validPuzzles.Count > 0)
         {
             puzzle = validPuzzles[Random.Range(0, validPuzzles.Count)];
             puzzle.transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z);
             var obj = Instantiate(puzzle);
-            
+        
             obj.gameObject.layer = LayerMask.NameToLayer("Walls");
             obj.transform.parent = gameObject.transform;
         }

@@ -40,6 +40,9 @@ public class Player : MonoBehaviour
     private static readonly int Attack = Animator.StringToHash("Attack");
     private static readonly int WeaponType = Animator.StringToHash("WeaponType");
 
+    private float lastAttacked = 0;
+    private float damageBoost = 1;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -52,12 +55,18 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ProcessInputs();
+        if (CurrentHP > 0)
+        {
+            ProcessInputs();
+        }
     }
 
     private void FixedUpdate()
     {
-        Move();
+        if (CurrentHP > 0)
+        {
+            Move();
+        }
     }
 
     void ProcessInputs()
@@ -67,8 +76,6 @@ public class Player : MonoBehaviour
 
         if (moveX != 0 || moveY != 0)
         {
-            IncreaseXP(1);
-
             lastHorizontal = moveX;
             lastVertical = moveY;
             
@@ -108,16 +115,22 @@ public class Player : MonoBehaviour
             var enemiesToDamage = Physics2D.OverlapCircleAll(AttackPos.position, attackRadius, LayerMask.GetMask("Enemy"));
             foreach (var enemy in enemiesToDamage)
             {
-                Debug.Log(enemy.transform.name + " was hit");
+                // Debug.Log(enemy.transform.name + " was hit");
                 enemy.GetComponent<Enemy>().TakeDamage(10);
             }
         }
 
+        // Debug.Log($"ProcessInputs: moveX: {moveDirection.x}, moveY: {moveDirection.y}");
     }
 
     public void TakeDamage(int damage)
     {
-        CurrentHP -= damage;        
+        if (Time.time - lastAttacked > damageBoost)
+        {
+            lastAttacked = Time.time;
+            CurrentHP -= damage;   
+        }
+        
     }
 
     public void EquipWeapon(Weapon weapon)
@@ -136,6 +149,7 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
+        // Debug.Log($"Move: moveX: {moveDirection.x}, moveY: {moveDirection.y}");
         rb.velocity = new Vector2(moveDirection.x * moveSpeed, moveDirection.y * moveSpeed);
     }
 
@@ -188,5 +202,10 @@ public class Player : MonoBehaviour
     public void OnCollisionExit2D(Collision2D other)
     {
         animator.SetBool(IsPushing, false);
+    }
+
+    public void ResetHealth()
+    {
+        CurrentHP = MaxHP;
     }
 }

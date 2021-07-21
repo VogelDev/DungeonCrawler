@@ -25,11 +25,14 @@ public class GameScript : MonoBehaviour
     public int RoomWidth;
 
     private Room currentRoom;
+    private Room startingRoom;
 
     public List<Room> Rooms;
     private static readonly int Death = Animator.StringToHash("Death");
 
     private bool _deathAnimation;
+    
+    
 
     // Start is called before the first frame update
     void Start()
@@ -62,18 +65,24 @@ public class GameScript : MonoBehaviour
             //WinningMessage.SetActive(true);
         }
 
-        // if (Player.CurrentHP <= 0)
-        // {
-        //     StartCoroutine(PlayerDeath());
-        // }
+        if (Player.CurrentHP <= 0)
+        {
+            StartCoroutine(PlayerDeath());
+        }
     }
 
     private IEnumerator PlayerDeath()
     {
-        Player.animator.SetTrigger(Death);
-        yield return new WaitForSeconds(5);
-        Destroy(Player.gameObject);
-        InitPlayer();
+        Player.animator.SetBool(Death, true);
+        yield return new WaitForSeconds(0.75f);
+        
+        var pos = startingRoom.transform.position;
+        Player.transform.position = new Vector3(pos.x + 6, pos.y + 6, 0);
+        Player.animator.SetBool(Death, false);
+        Player.ResetHealth();
+
+        // Destroy(Player);
+        // InitPlayer();
     }
 
     private void FixedUpdate()
@@ -134,6 +143,7 @@ public class GameScript : MonoBehaviour
         // Debug.Log(startPosition);
         //Random.InitState(42);
         //Debug.Log("Generating Maze");
+        startingRoom = startPosition;
         var stack = new List<Room>();
         var current = GetRoomByIndex((int)startPosition.Pos.x, (int)startPosition.Pos.y);
         while (Rooms.Any(r => !r.Visited))

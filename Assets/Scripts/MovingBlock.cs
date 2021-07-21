@@ -59,7 +59,7 @@ public class MovingBlock : MonoBehaviour
             return;
         }
         
-        Debug.Log(collision.transform.position.x + collision.transform.localScale.x);
+        // Debug.Log(collision.transform.position.x + collision.transform.localScale.x);
 
 
         if (Pushes.Contains(PushDirections.Left) && collision.transform.position.x + collision.transform.localScale.x - .6 <= transform.position.x)
